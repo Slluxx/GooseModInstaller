@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GoseModInstaller</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue@3"></script>
+    <script type="text/javascript" src="/eel.js"></script>
+
+    <style>
+        .background {
+            background-color: #202428;
+        }
+    </style>
+</head>
+
+<body class="background">
+    <div id="app">
+        <div class="container text-white">
+            <div class="row mt-2">
+                <div class="col">
+                    <h1>Install GooseMod</h1>
+                    <hr />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <div class="row" v-for="(item, index) in installData">
+                        <div class="d-grid gap-2 mb-2">
+                            <button type="button" class="btn btn-outline-light block"
+                                @click="installGM(item)">{{item.displayName}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <ul>
+                        <li v-for="(item) in messages">{{item}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+<script>
+    const { createApp } = Vue
+
+    createApp({
+        mounted: function () {
+            /*
+            eel.hello_world()((val) => {
+                alert(val)
+            }) 
+            */
+        },
+        methods: {
+            async installGM (item) {
+
+                // check operating system for mac and linux builds?
+
+                // check if discord is running
+                let ret = await eel.killProcess(item.discord.executable)();
+                jobj = JSON.parse(ret);
+                if (jobj.status == "success") {
+                    this.messages.push(jobj.message);
+                    this.variables.is_discord_running == false;
+                } else {
+                    this.messages.push(jobj.message);
+                    this.variables.is_discord_running == true;
+                }
+
+                // modify discord settings
+                ret = await eel.modifyDiscordSettings(item.discord.settingsPath, item.gooseModUrls)();
+                jobj = JSON.parse(ret);
+                if (jobj.status == "success") {
+                    this.messages.push(jobj.message);
+                    this.variables.is_install_success == true;
+                } else {
+                    this.messages.push(jobj.message);
+                    this.variables.is_install_success == false;
+                }
+
+                // modify discord settings
+                ret = await eel.startDiscord(item.discord.updateExecutablePath, item.discord.executable)();
+                jobj = JSON.parse(ret);
+                if (jobj.status == "success") {
+                    this.messages.push(jobj.message);
+                    this.variables.is_restarted == true;
+                } else {
+                    this.messages.push(jobj.message);
+                    this.variables.is_restarted == false;
+                }
+
+
+            }
+        },
+        data() {
+            return {
+                options: {
+                    remove_after_install: true,
+                },
+                variables: {
+                    is_discord_running: true,
+                    is_install_success: false,
+                    is_restarted: null,
+                },
+                installData: {
+                    stable: {
+                        displayName: "Stable",
+                        discord: {
+                            settingsPath: "%appdata%\\discord\\settings.json",
+                            executable: "Discord.exe",
+                            updateExecutablePath: "%localappdata%\\Discord\\Update.exe",
+                        },
+                        gooseModUrls: {
+                            UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod",
+                            NEW_UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod/",
+                        }
+                    },
+                    ptb: {
+                        displayName: "PTB",
+                        discord: {
+                            settingsPath: "%appdata%\discordptb\settings.json",
+                            executable: "Discordptb.exe",
+                            updateExecutablePath: "%localappdata%\\Discordptb\\Update.exe",
+                        },
+                        gooseModUrls: {
+                            UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod",
+                            NEW_UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod/",
+                        }
+                    },
+                    canary: {
+                        displayName: "Canary",
+                        discord: {
+                            settingsPath: "%appdata%\discordcanary\settings.json",
+                            executable: "Discordcanary.exe",
+                            updateExecutablePath: "%localappdata%\\Discordcanary\\Update.exe",
+                        },
+                        gooseModUrls: {
+                            UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod",
+                            NEW_UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod/",
+                        }
+                    },
+                    development: {
+                        displayName: "Development",
+                        discord: {
+                            settingsPath: "%appdata%\discorddevelopment\settings.json",
+                            executable: "Discorddevelopment.exe",
+                            updateExecutablePath: "%localappdata%\\Discorddevelopment\\Update.exe",
+                        },
+                        gooseModUrls: {
+                            UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod",
+                            NEW_UPDATE_ENDPOINT: "https://updates.goosemod.com/goosemod/",
+                        }
+                    }
+                },
+                messages: []
+            }
+        },
+
+    }).mount('#app')
+</script>
+
+</html>
