@@ -4,8 +4,8 @@ GMI is a simple goosemod installer (mainly to test Eel)
 
 # build
 
-cd src
-pip install -r requirements.txt
+cd src<br/>
+pip install -r requirements.txt<br/><br/>
 
-pip install PyInstaller
+pip install PyInstaller<br/>
 python -m eel start.py web --onefile --noconsole
